@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KZN Logistics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 h-screen w-full flex items-center justify-center bg-cover bg-center"
+    style="background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+
+    <div
+        class="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl w-full max-w-md text-white">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold tracking-tight">Logistics<span class="text-blue-400">Pro</span></h1>
+            <p class="text-gray-300 text-sm mt-2">Operations Management System</p>
+        </div>
+
+        <form action="/login" method="POST" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                <input type="text" name="username" required
+                    class="w-full bg-gray-800 border border-gray-600 text-white rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition placeholder-gray-500"
+                    placeholder="Enter username">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <input type="password" name="password" required
+                    class="w-full bg-gray-800 border border-gray-600 text-white rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition placeholder-gray-500"
+                    placeholder="••••••••">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/30">
+                Secure Login
+            </button>
+        </form>
+
+        <p class="text-center text-xs text-gray-500 mt-6">© 2026 KZN Systems. Authorized Personnel Only.</p>
+    </div>
+
+</body>
+
+</html>

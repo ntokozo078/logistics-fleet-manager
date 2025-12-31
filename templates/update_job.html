@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Job</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 p-8">
+
+        <div class="mb-6">
+            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Job
+                #{{ job.id }}</span>
+            <h2 class="text-2xl font-bold text-slate-800 mt-2">{{ job.client.name if job.client else job.client_name }}
+            </h2>
+            <p class="text-slate-500 text-sm">{{ job.pickup }} → {{ job.dropoff }}</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+
+            <div>
+                <label class="block text-sm font-medium text-slate-600 mb-2">Update Status</label>
+                <div class="space-y-2">
+                    <label
+                        class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"
+                        onclick="togglePOD(false)">
+                        <input type="radio" name="status" value="In Transit" class="w-5 h-5 text-blue-600" {% if
+                            job.status=='In Transit' %}checked{% endif %}>
+                        <span class="ml-3 font-medium text-slate-700">🚚 In Transit</span>
+                    </label>
+
+                    <label
+                        class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-emerald-50 border-emerald-100 transition"
+                        onclick="togglePOD(true)">
+                        <input type="radio" name="status" value="Delivered" class="w-5 h-5 text-green-600" {% if
+                            job.status=='Delivered' %}checked{% endif %}>
+                        <span class="ml-3 font-medium text-slate-700">✅ Delivered</span>
+                    </label>
+
+                    <label
+                        class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"
+                        onclick="togglePOD(false)">
+                        <input type="radio" name="status" value="Issue" class="w-5 h-5 text-red-600" {% if
+                            job.status=='Issue' %}checked{% endif %}>
+                        <span class="ml-3 font-medium text-slate-700">⚠️ Issue / Delay</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="pod-section" class="bg-emerald-50 p-4 rounded-xl border border-dashed border-emerald-300 hidden">
+                <label class="block text-sm font-bold text-emerald-800 mb-2">📸 Proof of Delivery Required</label>
+                <p class="text-xs text-emerald-600 mb-3">You CANNOT submit without a photo.</p>
+
+                <input type="file" id="pod-input" name="pod_photo" accept="image/*" capture="environment"
+                    class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-emerald-700 hover:file:bg-emerald-100" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-600 mb-1">Add Note</label>
+                <textarea name="note" rows="2" placeholder="e.g. Received by security guard"
+                    class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">{{ job.driver_note or '' }}</textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="submit"
+                    class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition shadow-lg">Submit
+                    Update</button>
+                <a href="/dashboard"
+                    class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-lg hover:bg-slate-200 transition text-center">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function togglePOD(isDelivered) {
+            const section = document.getElementById('pod-section');
+            const input = document.getElementById('pod-input');
+
+            if (isDelivered) {
+                // Show the box AND make it mandatory
+                section.classList.remove('hidden');
+                input.required = true;
+            } else {
+                // Hide the box AND remove mandatory rule
+                section.classList.add('hidden');
+                input.required = false;
+            }
+        }
+
+        // Check status on page load (in case user refreshes)
+        window.onload = function () {
+            const delivered = document.querySelector('input[value="Delivered"]');
+            if (delivered && delivered.checked) {
+                togglePOD(true);
+            }
+        };
+    </script>
+</body>
+
+</html>

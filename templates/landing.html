@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogisticsPro - KZN's Operations System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .hero-bg {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+
+<body class="bg-white text-slate-900">
+
+    <nav class="absolute w-full z-20 top-0 left-0 border-b border-white/10 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+            <div class="text-2xl font-extrabold tracking-tighter text-white">Logistics<span
+                    class="text-blue-500">Pro</span></div>
+            <div class="flex items-center gap-6">
+                <a href="#features"
+                    class="hidden md:block text-slate-300 hover:text-white text-sm font-medium transition">Features</a>
+                <a href="/login"
+                    class="bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-500/30 text-sm">Owner
+                    Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-bg h-screen min-h-[600px] flex items-center justify-center text-center px-6 relative">
+        <div class="max-w-4xl mx-auto mt-16">
+            <span
+                class="inline-block py-1 px-3 rounded-full bg-blue-500/20 border border-blue-500/50 text-blue-300 text-xs font-bold uppercase tracking-widest mb-6">Built
+                for KZN Transporters</span>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-8">
+                Get paid faster. <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Stop losing
+                    paperwork.</span>
+            </h1>
+            <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                The simple operations system that replaces WhatsApp and Excel. Track your fleet, force drivers to upload
+                Proof of Delivery, and invoice your clients on time.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/login"
+                    class="bg-white text-slate-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition shadow-xl">
+                    Start System Demo
+                </a>
+                <a href="#how-it-works"
+                    class="px-8 py-4 rounded-xl font-bold text-white border border-white/20 hover:bg-white/10 transition">
+                    How it Works
+                </a>
+            </div>
+
+            <p class="mt-8 text-sm text-slate-400">
+                🔒 Secure Cloud Hosting &bull; 📱 Works on any Android Phone
+            </p>
+        </div>
+    </section>
+
+    <section id="features" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold text-slate-900">Run your logistics business,<br>don't let it run you.</h2>
+                <p class="text-slate-500 mt-4">We solved the three biggest problems KZN owners face every day.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div
+                        class="w-14 h-14 bg-red-100 text-red-600 rounded-xl flex items-center justify-center text-3xl mb-6">
+                        📄</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Problem: "I lost the POD"</h3>
+                    <p class="text-slate-500 leading-relaxed">Drivers lose signed papers, and clients refuse to pay. You
+                        lose thousands of Rands every month.</p>
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <p class="text-sm font-bold text-blue-600">The Fix:</p>
+                        <p class="text-sm text-slate-600 mt-1">Drivers MUST upload a photo of the signed paper to close
+                            the job. Saved forever.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div
+                        class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-3xl mb-6">
+                        📞</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Problem: "Where is the truck?"</h3>
+                    <p class="text-slate-500 leading-relaxed">You spend all day calling drivers. Clients are angry
+                        because they don't know when goods will arrive.</p>
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <p class="text-sm font-bold text-blue-600">The Fix:</p>
+                        <p class="text-sm text-slate-600 mt-1">Real-time status dashboard. See exactly which driver is
+                            "In Transit" or "Delayed" instantly.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+                    <div
+                        class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-3xl mb-6">
+                        📉</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Problem: "Who is late?"</h3>
+                    <p class="text-slate-500 leading-relaxed">You don't know which drivers are performing and which are
+                        costing you money until it's too late.</p>
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <p class="text-sm font-bold text-blue-600">The Fix:</p>
+                        <p class="text-sm text-slate-600 mt-1">Auto-Late Detection. The system turns RED immediately
+                            when a job passes its due time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-slate-900 text-white py-20 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-2xl font-bold mb-8">Ready to modernize your fleet?</h2>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <a href="/login"
+                    class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">
+                    Log In to Dashboard
+                </a>
+            </div>
+            <p class="text-slate-500 text-sm">
+                © 2026 LogisticsPro Systems KZN. <br>
+                Empowering Durban's Supply Chain.
+            </p>
+        </div>
+    </section>
+
+</body>
+
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 font-sans text-slate-900">
+
+    <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="font-bold text-xl tracking-tight">Logistics<span class="text-blue-600">Pro</span></div>
+            <span class="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded border border-slate-200">Control
+                Tower</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+                <div class="text-sm font-bold">{{ user.username }}</div>
+                <div class="text-xs text-slate-500">Owner</div>
+            </div>
+            <img src="{{ user.image_url }}" class="w-10 h-10 rounded-full border border-slate-200 object-cover">
+            <a href="/logout" class="text-sm text-red-500 hover:text-red-700 ml-2 font-medium">Logout</a>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Fleet Overview</h1>
+                <p class="text-slate-500 text-sm">Real-time status of active deliveries.</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="/create_driver"
+                    class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2 text-sm transition">
+                    <span>👤</span> Add Driver
+                </a>
+                <div class="relative group">
+                    <button
+                        class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-50 text-sm transition flex items-center gap-2">
+                        📥 Export Report ▾
+                    </button>
+                    <div
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 hidden group-hover:block z-50">
+                        <a href="/export_csv?period=week"
+                            class="block px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600 first:rounded-t-xl">
+                            📅 Last 7 Days
+                        </a>
+                        <a href="/export_csv?period=month"
+                            class="block px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600 border-t border-slate-50">
+                            🗓️ Last 30 Days
+                        </a>
+                        <a href="/export_csv?period=year"
+                            class="block px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 hover:text-blue-600 border-t border-slate-50">
+                            📈 Last Year
+                        </a>
+                        <a href="/export_csv?period=all"
+                            class="block px-4 py-3 text-sm font-bold text-blue-600 hover:bg-blue-50 last:rounded-b-xl border-t border-slate-50">
+                            🗃️ All Time History
+                        </a>
+                    </div>
+                </div>
+                <a href="/create_job"
+                    class="bg-blue-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-blue-700 shadow-lg shadow-blue-500/30 text-sm transition flex items-center gap-2">
+                    <span>＋</span> New Job
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-wider">Active Jobs</div>
+                <div class="text-3xl font-bold text-blue-600 mt-2">{{ stats.active }}</div>
+            </div>
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-wider">Issues / Delays</div>
+                <div class="text-3xl font-bold text-red-500 mt-2">{{ stats.delayed }}</div>
+            </div>
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div class="text-slate-500 text-xs font-bold uppercase tracking-wider">Completed Today</div>
+                <div class="text-3xl font-bold text-emerald-600 mt-2">{{ stats.completed }}</div>
+            </div>
+            <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 shadow-sm text-white">
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Total History</div>
+                <div class="text-3xl font-bold mt-2">{{ jobs|length }}</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-fit">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700">Master Job List</h3>
+                    <span class="text-xs text-slate-400">Most recent first</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Client</th>
+                                <th class="px-6 py-3">Route (Summary)</th>
+                                <th class="px-6 py-3">Driver</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for job in jobs %}
+                            <tr class="hover:bg-blue-50/50 transition cursor-pointer"
+                                onclick="window.location='/job_details/{{ job.id }}'">
+                                <td class="px-6 py-4">
+                                    {% if job.status == 'In Transit' %}
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Moving
+                                    </span>
+                                    {% elif job.status == 'Issue' %}
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">Issue</span>
+                                    {% elif job.status == 'Delivered' %}
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                        ✓ Done
+                                    </span>
+                                    {% if job.pod_image_url %}
+                                    <div class="text-[10px] text-blue-600 font-medium mt-1 hover:underline">View Proof
+                                        📸</div>
+                                    {% endif %}
+                                    {% else %}
+                                    <span
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                        New
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800">
+                                        {{ job.client.name if job.client else 'Unknown Client' }}
+                                    </div>
+                                    <div class="text-xs text-slate-400">{{ job.due_date }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-xs text-slate-500 max-w-[150px] truncate" title="{{ job.pickup }}">
+                                        <span class="font-bold text-slate-400">P:</span> {{ job.pickup }}
+                                    </div>
+                                    <div class="text-xs text-slate-500 max-w-[150px] truncate mt-1"
+                                        title="{{ job.dropoff }}">
+                                        <span class="font-bold text-slate-400">D:</span> {{ job.dropoff }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if job.driver %}
+                                    <div class="flex items-center gap-2">
+                                        {% if job.driver.image_url %}
+                                        <img src="{{ job.driver.image_url }}"
+                                            class="w-6 h-6 rounded-full object-cover border border-slate-200">
+                                        {% else %}
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">
+                                            {{ job.driver.username[0]|upper }}
+                                        </div>
+                                        {% endif %}
+                                        <span class="text-xs font-medium">{{ job.driver.username }}</span>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-slate-400 italic text-xs">Unassigned</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-fit">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-bold text-slate-700">Your Drivers</h3>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    {% for driver in drivers %}
+                    <div class="p-4 flex items-center gap-3 hover:bg-slate-50 transition">
+                        <img src="{{ driver.image_url }}"
+                            class="w-10 h-10 rounded-full border border-slate-200 object-cover shadow-sm">
+                        <div class="flex-1">
+                            <div class="font-bold text-slate-800 text-sm">{{ driver.username }}</div>
+                            <div class="text-xs text-emerald-600 font-medium">● Active</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center text-slate-500 text-sm">
+                        No drivers yet.<br>
+                        <a href="/create_driver" class="text-blue-600 font-bold hover:underline">Add your first
+                            driver</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="p-4 bg-slate-50 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-400">Drivers use the mobile view</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>
