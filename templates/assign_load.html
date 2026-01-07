@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assign Load</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-lg rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        
+        <div class="bg-blue-600 p-6 text-white text-center">
+            <h2 class="text-2xl font-bold">Assign Load</h2>
+            <p class="opacity-90 mt-1">Select a job for <span class="font-black bg-blue-700 px-2 py-0.5 rounded">{{ driver.username }}</span></p>
+        </div>
+
+        <form action="{{ url_for('assign_load', driver_id=driver.id) }}" method="POST" class="p-6 space-y-4">
+            
+            {% if jobs %}
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Select Available Job</label>
+                    <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        {% for job in jobs %}
+                        <label class="flex items-start gap-3 p-3 border rounded-lg hover:bg-blue-50 cursor-pointer transition">
+                            <input type="radio" name="job_id" value="{{ job.id }}" required class="mt-1 accent-blue-600">
+                            <div>
+                                <div class="font-bold text-slate-800">{{ job.client_name }}</div>
+                                <div class="text-xs text-slate-500">
+                                    <span class="font-bold">R {{ job.revenue }}</span> • {{ job.pickup }} <i class="fas fa-arrow-right text-xs mx-1"></i> {{ job.dropoff }}
+                                </div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow-lg">
+                    Confirm Assignment
+                </button>
+            {% else %}
+                <div class="text-center py-8">
+                    <div class="text-4xl mb-2">😴</div>
+                    <h3 class="font-bold text-slate-800">No Pending Jobs</h3>
+                    <p class="text-slate-500 text-sm mb-4">There are no unassigned jobs available right now.</p>
+                    <a href="{{ url_for('create_job') }}" class="inline-block bg-slate-900 text-white font-bold py-2 px-4 rounded hover:bg-slate-800">Create New Job</a>
+                </div>
+            {% endif %}
+
+            <a href="{{ url_for('admin_drivers') }}" class="block text-center text-slate-500 font-bold hover:text-slate-700 text-sm mt-4">
+                Cancel
+            </a>
+        </form>
+    </div>
+
+</body>
+</html>

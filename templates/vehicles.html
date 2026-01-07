@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🚚 Vehicle Assets</h2>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <strong>Add New Asset</strong>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('manage_vehicles') }}" method="POST" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Registration Number</label>
+                    <input type="text" name="reg" class="form-control" placeholder="e.g. ND 123-456" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">Vehicle Type</label>
+                    <select name="type" class="form-select">
+                        <option value="1-Ton Bakkie">1-Ton Bakkie</option>
+                        <option value="4-Ton Truck">4-Ton Truck</option>
+                        <option value="8-Ton Truck">8-Ton Truck</option>
+                        <option value="Tri-Axle">Tri-Axle</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">Fuel Target (L/100km)</label>
+                    <input type="number" step="0.1" name="rate" class="form-control" placeholder="e.g. 12.5" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Add Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for v in vehicles %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-left-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title text-primary mb-1">{{ v.reg_number }}</h5>
+                            <small class="text-muted">{{ v.type }}</small>
+                        </div>
+                        <span class="badge bg-success align-self-start">{{ v.status }}</span>
+                    </div>
+                    <hr>
+                    <p class="mb-0 small">
+                        <i class="fas fa-gas-pump text-muted me-2"></i>Target: <strong>{{ v.base_fuel_rate }}L/100km</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>🚚 Driver Fleet Status</h2>
+    <p class="text-muted">Manage your drivers and check availability.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Driver Name</th>
+                        <th>Phone / Contact</th>
+                        <th>Vehicle</th>
+                        <th>Status</th>
+                        <th>Current Job</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for driver in drivers %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-2">{{ driver.name[0].upper() }}</div>
+                                <strong>{{ driver.name }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ driver.phone }}</td>
+                        <td>{{ driver.vehicle }}</td>
+                        <td>
+                            {% if driver.status == 'Available' %}
+                                <span class="badge bg-success">Available</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Busy</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ driver.current_load }}</td>
+                        <td>
+                            <a href="/admin/assign/{{ driver.id }}" class="btn btn-sm btn-primary 
+                               {% if driver.status == 'Busy' %}disabled{% endif %}">
+                                Assign Load
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 35px;
+        height: 35px;
+        background-color: #e9ecef;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 35px;
+        font-weight: bold;
+        color: #495057;
+    }
+</style>
+{% endblock %}

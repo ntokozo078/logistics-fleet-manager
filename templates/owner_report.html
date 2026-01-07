@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Custom Styling for the Report */
+    .report-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .metric-box {
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        border-left: 5px solid #dee2e6;
+        transition: transform 0.2s;
+    }
+    .metric-box:hover { transform: translateY(-3px); }
+    .border-success-custom { border-left-color: #198754 !important; }
+    .border-danger-custom { border-left-color: #dc3545 !important; }
+    .border-dark-custom { border-left-color: #212529 !important; }
+    
+    /* Print Styling: Hides navbar and buttons when printing */
+    @media print {
+        .no-print, nav, .navbar, footer { display: none !important; }
+        body { background-color: white !important; -webkit-print-color-adjust: exact; }
+        .container { max-width: 100% !important; padding: 0 !important; }
+        .report-card { box-shadow: none !important; }
+    }
+</style>
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fas fa-print me-2"></i>Print Report
+        </button>
+    </div>
+
+    <div class="card report-card p-4 p-md-5 bg-white">
+        
+        <div class="d-flex justify-content-between align-items-end border-bottom pb-4 mb-4">
+            <div>
+                <h6 class="text-uppercase text-muted fw-bold mb-1">Weekly Financial Statement</h6>
+                <h1 class="fw-bolder text-dark mb-0">PROFIT & LOSS REPORT</h1>
+                <p class="text-secondary mt-1 mb-0"><i class="far fa-calendar-alt me-2"></i>{{ date_range }}</p>
+            </div>
+            <div class="text-end">
+                <small class="text-uppercase fw-bold text-muted">Net Margin</small>
+                <div class="display-4 fw-bolder {{ 'text-success' if stats.margin > 20 else 'text-warning' }}">
+                    {{ "%.1f"|format(stats.margin) }}%
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="metric-box p-4 h-100 border-dark-custom bg-white shadow-sm">
+                    <div class="text-uppercase text-muted small fw-bold mb-2">Total Revenue</div>
+                    <h2 class="text-dark fw-bold mb-0">R {{ "{:,.2f}".format(stats.rev) }}</h2>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="metric-box p-4 h-100 border-danger-custom bg-white shadow-sm">
+                    <div class="text-uppercase text-muted small fw-bold mb-2">Fuel & Expenses</div>
+                    <h2 class="text-danger fw-bold mb-0">R {{ "{:,.2f}".format(stats.cost) }}</h2>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="metric-box p-4 h-100 border-success-custom bg-dark text-white shadow">
+                    <div class="text-uppercase text-white-50 small fw-bold mb-2">Net Cash Profit</div>
+                    <h2 class="text-white fw-bold mb-0">R {{ "{:,.2f}".format(stats.profit) }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="fw-bold text-dark mb-3">Driver Profitability Ranking</h4>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3 text-uppercase small text-muted">Driver Name</th>
+                        <th class="py-3 text-uppercase small text-muted">Jobs</th>
+                        <th class="py-3 text-uppercase small text-muted">Revenue</th>
+                        <th class="py-3 text-uppercase small text-muted">Profit Contribution</th>
+                        <th class="py-3 text-uppercase small text-muted">Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in driver_stats %}
+                    <tr>
+                        <td class="fw-bold">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle text-center me-2" style="width:35px; height:35px; line-height:35px;">
+                                    {{ d.name[0].upper() }}
+                                </div>
+                                {{ d.name }}
+                            </div>
+                        </td>
+                        <td>{{ d.jobs }}</td>
+                        <td class="text-muted">R {{ "{:,.0f}".format(d.revenue) }}</td>
+                        <td class="fw-bold text-success">R {{ "{:,.0f}".format(d.profit) }}</td>
+                        <td>
+                            {% if d.is_problem %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Low Margin
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                                    <i class="fas fa-check-circle me-1"></i> Healthy
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-5 pt-5 d-none d-print-flex">
+            <div class="col-6">
+                <div class="border-top border-dark pt-2" style="width: 80%">
+                    <p class="mb-0 fw-bold">Owner Signature</p>
+                    <small class="text-muted">Date:</small>
+                </div>
+            </div>
+            <div class="col-6 text-end">
+                <p class="text-muted fst-italic">Generated by KZN Logistics Enterprise System</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

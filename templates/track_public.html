@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Track Order #{{ job.id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style> #map { height: 400px; width: 100%; } </style>
+</head>
+<body class="bg-slate-50 flex flex-col items-center min-h-screen p-4">
+    
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        
+        <div class="text-center p-8 border-b border-slate-100">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">ORDER TRACKING</div>
+            <h1 class="text-3xl font-black text-slate-900 mb-1">Status: {{ job.status }}</h1>
+            <p class="text-slate-500 text-sm">Last Update: {{ job.created_at.strftime('%Y-%m-%d') }}</p>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="p-8">
+            <div class="flex justify-between text-left bg-slate-50 p-4 rounded-xl mb-6">
+                <div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase">Pickup</div>
+                    <div class="font-bold text-slate-800 text-sm">{{ job.pickup }}</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase">Dropoff</div>
+                    <div class="font-bold text-slate-800 text-sm">{{ job.dropoff }}</div>
+                </div>
+            </div>
+
+            {% if job.pod_image_url %}
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                <span class="text-emerald-700 font-bold text-sm">✅ Proof of Delivery Available</span>
+                <a href="{{ job.pod_image_url }}" target="_blank">
+                    <img src="{{ job.pod_image_url }}" class="mt-2 rounded-lg shadow-sm border border-emerald-200 hover:opacity-90">
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // 1. Init Map
+        var map = L.map('map');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+        var pickup = "{{ job.pickup }}";
+        var dropoff = "{{ job.dropoff }}";
+        var driverLat = {{ job.current_lat if job.current_lat else 'null' }};
+        var driverLng = {{ job.current_lng if job.current_lng else 'null' }};
+
+        async function initMap() {
+            var bounds = [];
+
+            // Plot Pickup
+            try {
+                let resP = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${pickup}`);
+                let dataP = await resP.json();
+                if(dataP.length > 0) {
+                    var pMark = L.marker([dataP[0].lat, dataP[0].lon]).addTo(map).bindPopup("<b>Pickup</b>");
+                    bounds.push([dataP[0].lat, dataP[0].lon]);
+                }
+            } catch(e){}
+
+            // Plot Dropoff
+            try {
+                let resD = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${dropoff}`);
+                let dataD = await resD.json();
+                if(dataD.length > 0) {
+                    var dMark = L.marker([dataD[0].lat, dataD[0].lon]).addTo(map).bindPopup("<b>Dropoff</b>");
+                    dMark._icon.style.filter = "hue-rotate(120deg)"; // Red
+                    bounds.push([dataD[0].lat, dataD[0].lon]);
+                }
+            } catch(e){}
+
+            // Plot Driver (If location exists)
+            if (driverLat && driverLng) {
+                var truckIcon = L.divIcon({
+                    html: '<div style="font-size: 20px;">🚛</div>',
+                    className: 'dummy',
+                    iconSize: [24, 24]
+                });
+                L.marker([driverLat, driverLng], {icon: truckIcon}).addTo(map).bindPopup("<b>Current Location</b>").openPopup();
+                bounds.push([driverLat, driverLng]);
+            }
+
+            if(bounds.length > 0) {
+                map.fitBounds(bounds, {padding: [50, 50]});
+            } else {
+                map.setView([-29.8587, 31.0218], 10); // Default Durban
+            }
+        }
+
+        initMap();
+    </script>
+</body>
+</html>

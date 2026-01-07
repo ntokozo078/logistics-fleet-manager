@@ -1,78 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Create Job</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-
+    
     <style>
-        #map {
-            height: 350px;
-            width: 100%;
-            border-radius: 0.75rem;
-            z-index: 1;
-            border: 2px solid #e2e8f0;
-        }
-
-        .leaflet-control-geocoder-form input {
-            color: black;
-            font-size: 12px;
-        }
-
-        img.huechange {
-            filter: hue-rotate(120deg);
-        }
+        #map { height: 350px; width: 100%; border-radius: 0.75rem; z-index: 1; border: 2px solid #e2e8f0; }
+        .leaflet-control-geocoder-form input { color: black; font-size: 12px; }
+        img.huechange { filter: hue-rotate(120deg); }
     </style>
 </head>
 
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 p-8">
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">Create New Job</h2>
+<body class="bg-slate-50 min-h-screen">
 
-        <form action="/create_job" method="POST" class="space-y-4">
+    <nav class="bg-white border-b border-slate-200 px-6 py-4 fixed top-0 w-full z-50 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-lg">L</div>
+            <span class="font-bold text-xl text-slate-800 tracking-tight">Logistics<span class="text-blue-600">Pro</span></span>
+        </div>
+        
+        <div class="flex items-center gap-6 text-sm font-bold">
+            <a href="{{ url_for('dashboard') }}" class="text-slate-500 hover:text-blue-600 transition flex items-center gap-2">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin_drivers') }}" class="text-slate-500 hover:text-blue-600 transition flex items-center gap-2">
+                <i class="fas fa-truck"></i> Fleet
+            </a>
+            <div class="h-4 w-px bg-slate-300"></div>
+            <a href="{{ url_for('logout') }}" class="text-red-500 hover:text-red-700 transition flex items-center gap-2">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
 
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">Client Name</label>
-                <input type="text" name="client" placeholder="e.g. Makro KZN" required
-                    class="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-
-            <div>
-                <div class="flex justify-between items-center mb-2">
-                    <label class="block text-sm font-bold text-blue-600">📍 Route Planner</label>
-                    <div class="flex gap-2 text-xs">
-                        <button type="button" onclick="setMode('pickup')" id="btn-pickup"
-                            class="bg-blue-600 text-white px-3 py-1 rounded-full hover:bg-blue-700 font-bold transition shadow-sm ring-2 ring-blue-200">Set
-                            Pickup</button>
-                        <button type="button" onclick="setMode('dropoff')" id="btn-dropoff"
-                            class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full hover:bg-emerald-100 hover:text-emerald-700 font-bold transition">Set
-                            Dropoff</button>
+    <div class="flex items-center justify-center min-h-screen pt-24 pb-12 px-4">
+        
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6">Create New Job</h2>
+            
+            <form action="{{ url_for('create_job') }}" method="POST" class="space-y-4">
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
+                    <h3 class="text-blue-800 font-bold text-sm uppercase mb-2">💰 Financials (Required)</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Revenue (R)</label>
+                            <input type="number" step="0.01" name="revenue" placeholder="5000" required class="w-full p-2 border border-blue-300 rounded text-slate-900 font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Fuel (Est)</label>
+                            <input type="number" step="0.01" name="fuel" placeholder="1200" required class="w-full p-2 border border-slate-300 rounded">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Driver Cost</label>
+                            <input type="number" step="0.01" name="driver_cost" placeholder="500" required class="w-full p-2 border border-slate-300 rounded">
+                        </div>
                     </div>
                 </div>
-                <div id="map"></div>
-            </div>
 
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">Pickup Address</label>
-                <input type="text" id="pickup_input" name="pickup" placeholder="Select on map..." required
-                    class="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white transition">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">Dropoff Address</label>
-                <input type="text" id="dropoff_input" name="dropoff" placeholder="Select on map..." required
-                    class="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white transition">
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-600 mb-1">Due Date</label>
-                    <input type="datetime-local" id="datePicker" name="date" required
-                        class="w-full p-3 border border-slate-300 rounded-lg">
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Client Name</label>
+                    <input type="text" name="client" placeholder="e.g. Makro KZN" required class="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
+                
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-bold text-blue-600">📍 Route Planner</label>
+                        <div class="flex gap-2 text-xs">
+                            <button type="button" onclick="setMode('pickup')" id="btn-pickup" class="bg-blue-600 text-white px-3 py-1 rounded-full hover:bg-blue-700 font-bold transition shadow-sm ring-2 ring-blue-200">Set Pickup</button>
+                            <button type="button" onclick="setMode('dropoff')" id="btn-dropoff" class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full hover:bg-emerald-100 hover:text-emerald-700 font-bold transition">Set Dropoff</button>
+                        </div>
+                    </div>
+                    <div id="map"></div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Pickup Address</label>
+                    <input type="text" id="pickup_input" name="pickup" placeholder="Select on map..." required class="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Dropoff Address</label>
+                    <input type="text" id="dropoff_input" name="dropoff" placeholder="Select on map..." required class="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white transition">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Due Date</label>
+                        <input type="datetime-local" id="datePicker" name="date" required class="w-full p-3 border border-slate-300 rounded-lg">
+                    </div>
+                    
+                    <div>
+                         <label class="block text-sm font-medium text-slate-600 mb-1">Assign Vehicle</label>
+                         <select name="vehicle_id" required class="w-full p-3 border border-slate-300 rounded-lg bg-white">
+                            <option value="" disabled selected>-- Select Truck --</option>
+                            {% for v in vehicles %}
+                            <option value="{{ v.id }}">{{ v.reg_number }} ({{ v.type }})</option>
+                            {% endfor %}
+                         </select>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-slate-600 mb-1">Assign Driver</label>
                     <select name="driver_id" class="w-full p-3 border border-slate-300 rounded-lg bg-white">
@@ -81,16 +113,13 @@
                         {% endfor %}
                     </select>
                 </div>
-            </div>
 
-            <div class="pt-4 flex gap-3">
-                <button type="submit"
-                    class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition shadow-lg">Confirm
-                    Job</button>
-                <a href="/dashboard"
-                    class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-lg hover:bg-slate-200 transition text-center">Cancel</a>
-            </div>
-        </form>
+                <div class="pt-4 flex gap-3">
+                    <button type="submit" class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition shadow-lg">Confirm Job</button>
+                    <a href="{{ url_for('dashboard') }}" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-lg hover:bg-slate-200 transition text-center">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -105,10 +134,10 @@
         var routeLine = null;
 
         var geocoder = L.Control.geocoder({ defaultMarkGeocode: false })
-            .on('markgeocode', function (e) { updateLocation(e.geocode.center, e.geocode.name); map.setView(e.geocode.center, 15); })
-            .addTo(map);
+        .on('markgeocode', function(e) { updateLocation(e.geocode.center, e.geocode.name); map.setView(e.geocode.center, 15); })
+        .addTo(map);
 
-        map.on('click', function (e) {
+        map.on('click', function(e) {
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
                 .then(response => response.json())
                 .then(data => { updateLocation(e.latlng, data.display_name || "Custom Location"); })
@@ -123,15 +152,15 @@
                 setMode('dropoff');
             } else {
                 if (dropoffMarker) map.removeLayer(dropoffMarker);
-                var greenIcon = new L.Icon.Default(); greenIcon.options.className = 'huechange';
+                var greenIcon = new L.Icon.Default(); greenIcon.options.className = 'huechange'; 
                 dropoffMarker = L.marker(latlng).addTo(map).bindPopup("<b>Dropoff:</b> " + address).openPopup();
-                dropoffMarker._icon.classList.add('huechange');
+                dropoffMarker._icon.classList.add('huechange'); 
                 document.getElementById('dropoff_input').value = address;
             }
             if (pickupMarker && dropoffMarker) {
                 if (routeLine) map.removeLayer(routeLine);
-                routeLine = L.polyline([pickupMarker.getLatLng(), dropoffMarker.getLatLng()], { color: 'blue', dashArray: '10, 10', weight: 3, opacity: 0.6 }).addTo(map);
-                map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+                routeLine = L.polyline([pickupMarker.getLatLng(), dropoffMarker.getLatLng()], {color: 'blue', dashArray: '10, 10', weight: 3, opacity: 0.6}).addTo(map);
+                map.fitBounds(routeLine.getBounds(), {padding: [50, 50]});
             }
         }
 
@@ -150,8 +179,7 @@
         const dateInput = document.getElementById('datePicker');
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        dateInput.min = now.toISOString().slice(0, 16);
+        dateInput.min = now.toISOString().slice(0,16);
     </script>
 </body>
-
 </html>

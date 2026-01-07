@@ -1,103 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Job</title>
+    <title>Update Job #{{ job.id }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 p-8">
-
-        <div class="mb-6">
-            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Job
-                #{{ job.id }}</span>
-            <h2 class="text-2xl font-bold text-slate-800 mt-2">{{ job.client.name if job.client else job.client_name }}
-            </h2>
-            <p class="text-slate-500 text-sm">{{ job.pickup }} → {{ job.dropoff }}</p>
-        </div>
-
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
-
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-2">Update Status</label>
-                <div class="space-y-2">
-                    <label
-                        class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"
-                        onclick="togglePOD(false)">
-                        <input type="radio" name="status" value="In Transit" class="w-5 h-5 text-blue-600" {% if
-                            job.status=='In Transit' %}checked{% endif %}>
-                        <span class="ml-3 font-medium text-slate-700">🚚 In Transit</span>
-                    </label>
-
-                    <label
-                        class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-emerald-50 border-emerald-100 transition"
-                        onclick="togglePOD(true)">
-                        <input type="radio" name="status" value="Delivered" class="w-5 h-5 text-green-600" {% if
-                            job.status=='Delivered' %}checked{% endif %}>
-                        <span class="ml-3 font-medium text-slate-700">✅ Delivered</span>
-                    </label>
-
-                    <label
-                        class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition"
-                        onclick="togglePOD(false)">
-                        <input type="radio" name="status" value="Issue" class="w-5 h-5 text-red-600" {% if
-                            job.status=='Issue' %}checked{% endif %}>
-                        <span class="ml-3 font-medium text-slate-700">⚠️ Issue / Delay</span>
-                    </label>
-                </div>
-            </div>
-
-            <div id="pod-section" class="bg-emerald-50 p-4 rounded-xl border border-dashed border-emerald-300 hidden">
-                <label class="block text-sm font-bold text-emerald-800 mb-2">📸 Proof of Delivery Required</label>
-                <p class="text-xs text-emerald-600 mb-3">You CANNOT submit without a photo.</p>
-
-                <input type="file" id="pod-input" name="pod_photo" accept="image/*" capture="environment"
-                    class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-emerald-700 hover:file:bg-emerald-100" />
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">Add Note</label>
-                <textarea name="note" rows="2" placeholder="e.g. Received by security guard"
-                    class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">{{ job.driver_note or '' }}</textarea>
-            </div>
-
-            <div class="flex gap-3">
-                <button type="submit"
-                    class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition shadow-lg">Submit
-                    Update</button>
-                <a href="/dashboard"
-                    class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-lg hover:bg-slate-200 transition text-center">Cancel</a>
-            </div>
-        </form>
-    </div>
-
     <script>
-        function togglePOD(isDelivered) {
-            const section = document.getElementById('pod-section');
-            const input = document.getElementById('pod-input');
+        function handleStatusChange(status) {
+            const podSection = document.getElementById('pod-section');
+            const podInput = document.getElementById('pod-input');
+            const noteSection = document.getElementById('note-section');
+            const noteInput = document.getElementById('note-input');
+            const saveBtn = document.getElementById('save-btn');
 
-            if (isDelivered) {
-                // Show the box AND make it mandatory
-                section.classList.remove('hidden');
-                input.required = true;
-            } else {
-                // Hide the box AND remove mandatory rule
-                section.classList.add('hidden');
-                input.required = false;
+            // Reset UI
+            podInput.required = false;
+            noteInput.required = false;
+            podSection.classList.add('hidden');
+            noteSection.classList.add('hidden');
+            saveBtn.innerText = "Update Status";
+            saveBtn.className = "w-full py-4 rounded-xl font-black text-white shadow-lg transition transform active:scale-95 bg-slate-900 hover:bg-slate-800";
+
+            if (status === 'Delivered') {
+                podSection.classList.remove('hidden');
+                podInput.required = true;
+                saveBtn.innerText = "Complete & Upload Proof";
+                saveBtn.className = "w-full py-4 rounded-xl font-black text-white shadow-lg bg-emerald-600";
+            } 
+            else if (status === 'Issue') {
+                noteSection.classList.remove('hidden');
+                noteInput.required = true;
+                saveBtn.innerText = "Report Issue";
+                saveBtn.className = "w-full py-4 rounded-xl font-black text-white shadow-lg bg-red-600";
             }
+            
+            // TRIGGER GPS CAPTURE
+            captureLocation();
         }
 
-        // Check status on page load (in case user refreshes)
-        window.onload = function () {
-            const delivered = document.querySelector('input[value="Delivered"]');
-            if (delivered && delivered.checked) {
-                togglePOD(true);
+        function captureLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('lat').value = position.coords.latitude;
+                    document.getElementById('lng').value = position.coords.longitude;
+                    document.getElementById('gps-status').innerText = "📍 Location Captured";
+                    document.getElementById('gps-status').classList.add("text-emerald-500");
+                }, function(err) {
+                    console.log("GPS Error");
+                });
             }
-        };
+        }
+    </script>
+</head>
+<body class="bg-slate-100 min-h-screen pb-20 font-sans">
+
+    <div class="max-w-lg mx-auto bg-white shadow-xl overflow-hidden md:rounded-2xl md:my-6">
+        
+        <div class="bg-slate-900 text-white p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-2xl font-black">Update Status</h1>
+                    <div class="text-slate-400 font-medium">{{ job.client_name }}</div>
+                </div>
+                <a href="/dashboard" class="text-xs bg-slate-800 px-3 py-1 rounded font-bold text-slate-300">Close</a>
+            </div>
+            <div id="gps-status" class="text-xs font-bold text-slate-500 mt-2 uppercase tracking-widest">Waiting for GPS...</div>
+        </div>
+
+        <form action="/update_job/{{ job.id }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-8">
+            
+            <input type="hidden" name="lat" id="lat">
+            <input type="hidden" name="lng" id="lng">
+
+            <div class="space-y-3">
+                <label class="flex items-center p-4 border-2 border-slate-100 rounded-xl cursor-pointer hover:bg-blue-50 group has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                    <input type="radio" name="status" value="In Transit" class="w-5 h-5 text-blue-600" onclick="handleStatusChange('In Transit')" {% if job.status == 'In Transit' %}checked{% endif %}>
+                    <div class="ml-4">
+                        <span class="block font-bold text-slate-800">In Transit</span>
+                        <span class="block text-xs text-slate-500">Driving to location</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center p-4 border-2 border-slate-100 rounded-xl cursor-pointer hover:bg-emerald-50 group has-[:checked]:border-emerald-600 has-[:checked]:bg-emerald-50">
+                    <input type="radio" name="status" value="Delivered" class="w-5 h-5 text-emerald-600" onclick="handleStatusChange('Delivered')" {% if job.status == 'Delivered' %}checked{% endif %}>
+                    <div class="ml-4">
+                        <span class="block font-bold text-slate-800">Delivered</span>
+                        <span class="block text-xs text-slate-500">Arrived & Complete</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center p-4 border-2 border-slate-100 rounded-xl cursor-pointer hover:bg-red-50 group has-[:checked]:border-red-600 has-[:checked]:bg-red-50">
+                    <input type="radio" name="status" value="Issue" class="w-5 h-5 text-red-600" onclick="handleStatusChange('Issue')" {% if job.status == 'Issue' %}checked{% endif %}>
+                    <div class="ml-4">
+                        <span class="block font-bold text-slate-800">Issue / Delay</span>
+                        <span class="block text-xs text-slate-500">Problem reported</span>
+                    </div>
+                </label>
+            </div>
+
+            <div id="pod-section" class="hidden bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                <label class="block text-sm font-bold text-emerald-800 mb-2">📸 Upload Proof (Required)</label>
+                <input type="file" id="pod-input" name="pod_photo" accept="image/*" class="w-full text-sm text-slate-500">
+            </div>
+
+            <div id="note-section" class="hidden bg-red-50 p-4 rounded-xl border border-red-100">
+                <label class="block text-sm font-bold text-red-800 mb-2">📝 Explain Delay</label>
+                <textarea id="note-input" name="note" rows="3" class="w-full p-3 border border-red-200 rounded-lg text-sm"></textarea>
+            </div>
+
+            <button type="submit" id="save-btn" class="w-full py-4 rounded-xl font-black text-white shadow-lg bg-slate-900">
+                Update Status
+            </button>
+        </form>
+    </div>
+    
+    <script>
+        // Capture GPS immediately on load just in case
+        captureLocation();
     </script>
 </body>
-
 </html>
