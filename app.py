@@ -107,10 +107,16 @@ class Job(db.Model):
 # 2. ROUTES
 # ==========================================
 
+@app.route('/index')
+def index():
+    return render_template('index.html')
+
+# Update your existing 'home' route to look like this:
 @app.route('/')
 def home():
-    if 'user_id' in session: return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    if 'user_id' in session: 
+        return redirect(url_for('dashboard'))
+    return render_template('index.html') # Show landing page directly
 
 @app.route('/dashboard')
 @login_required
