@@ -141,5 +141,96 @@
             </div>
         </div>
     </div>
+    <script>
+    // 1. Check Internet Status on Load
+    window.addEventListener('load', () => {
+        updateOnlineStatus();
+        // Try to send anything saved previously
+        flushQueue(); 
+    });
+
+    // 2. Listen for Connection Changes
+    window.addEventListener('online',  () => {
+        updateOnlineStatus();
+        flushQueue();
+    });
+    window.addEventListener('offline', updateOnlineStatus);
+
+    function updateOnlineStatus() {
+        const statusDiv = document.getElementById('connection-status');
+        if (navigator.onLine) {
+            if(statusDiv) statusDiv.classList.add('hidden'); // Hide warning
+        } else {
+            // Show a warning banner if it exists, or create one
+            if (!statusDiv) createOfflineBanner();
+            else statusDiv.classList.remove('hidden');
+        }
+    }
+
+    function createOfflineBanner() {
+        const banner = document.createElement('div');
+        banner.id = 'connection-status';
+        banner.className = 'fixed bottom-0 left-0 w-full bg-amber-500 text-white text-center py-2 font-bold z-50';
+        banner.innerHTML = '<i class="fas fa-wifi-slash"></i> You are Offline. Messages will send automatically when signal returns.';
+        document.body.appendChild(banner);
+    }
+
+    // 3. The "Queue" System (Simple LocalStorage)
+    function flushQueue() {
+        const queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+        if (queue.length === 0) return;
+
+        console.log("🔄 Internet back! Sending " + queue.length + " queued items...");
+
+        // Loop through saved requests and try to send them
+        queue.forEach(async (item, index) => {
+            try {
+                // Here we would perform the actual fetch/post
+                // For this MVP, we will just simulate success
+                console.log("Resending:", item);
+                
+                // If using actual fetch:
+                /*
+                await fetch(item.url, {
+                    method: 'POST',
+                    body: item.body,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
+                */
+            } catch (err) {
+                console.error("Still failed", err);
+            }
+        });
+
+        // Clear queue after trying
+        localStorage.removeItem('offlineQueue');
+        alert("✅ Connection restored! Your saved reports have been sent.");
+    }
+
+    // 4. Intercept Forms (Optional Advanced Step)
+    // If you want to automatically catch form submits:
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            if (!navigator.onLine) {
+                e.preventDefault(); // Stop the form from crashing
+                
+                // Save form data to queue
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                const queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+                queue.push({
+                    url: form.action,
+                    body: JSON.stringify(data),
+                    timestamp: new Date().getTime()
+                });
+                localStorage.setItem('offlineQueue', JSON.stringify(queue));
+                
+                alert("📡 Saved to Outbox! Will send when online.");
+                form.reset();
+            }
+        });
+    });
+</script>
 </body>
 </html>
