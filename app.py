@@ -202,6 +202,37 @@ def dashboard():
     return redirect(url_for('login'))
 
 
+@app.route('/report_issue/<int:job_id>', methods=['POST'])
+@login_required
+def report_issue(job_id):
+    # 1. Find the job
+    job = Job.query.get_or_404(job_id)
+    
+    # 2. Get data from the form
+    issue_type = request.form.get('issue_type')
+    notes = request.form.get('notes')
+    lost_revenue = request.form.get('lost_revenue')
+
+    # 3. Update the job status
+    job.status = 'Issue'
+    job.delivery_status_detail = issue_type
+    job.issue_notes = notes
+    
+    # 4. Handle Money (If revenue was lost)
+    if lost_revenue:
+        try:
+            loss = float(lost_revenue)
+            # Set final_revenue to the original revenue minus the loss
+            job.final_revenue = job.revenue - loss
+        except ValueError:
+            pass # Ignore if they typed text instead of numbers
+
+    # 5. Save to Database
+    db.session.commit()
+    
+    flash(f"Issue reported: {issue_type}. Revenue adjusted.", "danger")
+    return redirect(url_for('job_details', job_id=job.id))
+
 @app.route('/admin/assign/<int:driver_id>', methods=['GET', 'POST'])
 @login_required
 def assign_load(driver_id):
